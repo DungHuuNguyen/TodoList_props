@@ -3,49 +3,62 @@ import "./App.scss";
 import { Pagination } from "antd";
 import Task from "./components/Task";
 import FormInputTask from "./components/FormInputTask";
-
-const listTask = [
-  {
-    id: 1,
-    taskName: "Task 1",
-    isDone: false,
-  },
-  {
-    id: 2,
-    taskName: "Task 2",
-    isDone: false,
-  },
-  {
-    id: 3,
-    taskName: "Task 3",
-    isDone: true,
-  },
-  {
-    id: 4,
-    taskName: "Task 4",
-    isDone: false,
-  },
-];
+import { useState } from "react";
+import KEY_TASK_LIST from "./constants";
 
 function App() {
+  const [taskList, setTaskList] = useState(
+    JSON.parse(localStorage.getItem(KEY_TASK_LIST)) || []
+  );
+
   //  Trường hợp render list thì React cần được cc key cho mỗi item để tối ưu render
-  const renderTaskList = (tasks) => {
-    return tasks.map((task) => {
-      return <Task key={task.id} />;
+  const renderTaskList = (listTasks) => {
+    return listTasks.map((task) => {
+      return (
+        <Task
+          key={task.id}
+          task={task}
+          handleRemoveTask={handleRemoveTask}
+          handleMakeDoneTask={handleMakeDoneTask}
+        />
+      );
     });
   };
 
-  // const renderTaskList = (tasks) =>
-  //   tasks.map((task) => (
-  //     <Task key={task.id} taskName={task.taskName} isDone={task.isDone} />
-  //   ));
+  const handleAddTask = (_inputTask) => {
+    const task = {
+      id: new Date().getTime(),
+      taskName: _inputTask,
+      isDone: false,
+    };
+    setTaskList([task, ...taskList]);
+    localStorage.setItem(KEY_TASK_LIST, JSON.stringify([task, ...taskList]));
+  };
+
+  const handleRemoveTask = (id) => {
+    // console.log(id);
+    const taskListClone = taskList.filter((task) => task.id !== id);
+    setTaskList(taskListClone);
+    localStorage.setItem(KEY_TASK_LIST, JSON.stringify(taskListClone));
+  };
+
+  const handleMakeDoneTask = (id) => {
+    const existedIndexTask = taskList.findIndex((task) => task.id === id);
+    const taskListClone = [...taskList];
+    taskListClone[existedIndexTask] = {
+      ...taskListClone[existedIndexTask],
+      isDone: true,
+    };
+    setTaskList(taskListClone);
+    localStorage.setItem(KEY_TASK_LIST, JSON.stringify(taskListClone));
+  };
 
   return (
     <div className="App">
       <div className="todo-list-container">
         <div className="todo-list-wrapper">
-          <FormInputTask />
-          <div className="todo-list-main">{renderTaskList(listTask)}</div>
+          <FormInputTask handleAddTask={handleAddTask} />
+          <div className="todo-list-main">{renderTaskList(taskList)}</div>
 
           <div className="divider"></div>
           <div className="todo-list-pagination">

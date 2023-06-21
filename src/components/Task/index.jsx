@@ -7,17 +7,30 @@ import "./style.scss";
 // hoặc React.Fragment (cả 2 đều giống nhau)
 
 const Task = (props) => {
+  const { id, taskName, isDone } = props.task;
+  const { handleRemoveTask, handleMakeDoneTask } = props;
+
   return (
     <>
       <div className="task">
-        <p className={`task__name ${props?.isDone ? "task__name--done" : ""}`}>
-          {props.taskName}
+        <p className={`task__name ${isDone ? "task__name--done" : ""}`}>
+          {taskName}
         </p>
         <div className="task__group-btn">
-          <button className="task__btn-done">
+          <button
+            className="task__btn-done"
+            onClick={() => {
+              handleMakeDoneTask(id);
+            }}
+          >
             <CheckOutlined />
           </button>
-          <button className="task__btn-del">
+          <button
+            className="task__btn-del"
+            onClick={() => {
+              handleRemoveTask(id);
+            }}
+          >
             <DeleteOutlined />
           </button>
         </div>
